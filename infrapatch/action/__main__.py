@@ -2,7 +2,7 @@ import logging as log
 
 
 import click
-from github import Auth, Github
+from github import Auth, Github, GithubException
 from github.PullRequest import PullRequest
 from infrapatch.action.config import ActionConfigProvider
 
@@ -29,7 +29,12 @@ def main(debug: bool):
 
     git.fetch_origin()
 
-    if github_repo.get_branch(config.target_branch) is not None and config.report_only is False:
+    try:
+        github_target_branch = github_repo.get_branch(config.target_branch)
+    except GithubException:
+        github_target_branch = None
+
+    if github_target_branch is not None and config.report_only is False:
         log.info(f"Branch {config.target_branch} already exists. Checking out...")
         git.checkout_branch(config.target_branch, f"origin/{config.target_branch}")
 
@@ -50,7 +55,7 @@ def main(debug: bool):
         log.info("No upgradable resources found.")
         return
 
-    if github_repo.get_branch(config.target_branch) is None:
+    if github_target_branch is None:
         log.info(f"Branch {config.target_branch} does not exist. Creating and checking out...")
         github_repo.create_git_ref(ref=f"refs/heads/{config.target_branch}", sha=github_head_branch.commit.sha)
         git.checkout_branch(config.target_branch, f"origin/{config.head_branch}")
