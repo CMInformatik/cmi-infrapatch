@@ -30,6 +30,9 @@ inputs:
     description: "Registry secrets to use for private registries. Needs to be a newline separated list of secrets in the format <registry_domain>:<secret_name>. Defaults to empty"
     required: false
     default: ""
+  github_token:
+    description: "GitHub access token. Defaults to github.token."
+    default: ${{ github.token }}
 outputs:
   target_branch:
     description: "Name of the branch where changes will be pushed to"
@@ -81,10 +84,8 @@ runs:
         fi
         python -m "$module" "${arguments[@]}"
       env:
-        # Config from environment
-        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
-
         # Config from inputs
+        GITHUB_TOKEN: ${{ inputs.github_token }}
         DEFAULT_REGISTRY_DOMAIN: ${{ inputs.DEFAULT_REGISTRY_DOMAIN }}
         REPOSITORY_NAME: ${{ inputs.repository_name }}
         REPORT_ONLY: ${{ inputs.report_only }}
