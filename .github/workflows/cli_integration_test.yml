@@ -26,7 +26,7 @@ jobs:
       - name: Get Python Version
         id: get_python_verion
         run: |
-          $python_version = $(cat python_version.txt)
+          python_version=$(cat python_version.txt)
           echo "Using Python version $python_version"
           echo "::set-output name=python_version::$(echo $python_version)"
 
