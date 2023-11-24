@@ -25,7 +25,7 @@ class ActionConfigProvider:
         self.repository_name = _get_value_from_env("REPOSITORY_NAME")
         self.working_directory = Path(_get_value_from_env("WORKING_DIRECTORY", default=os.getcwd()))
         self.default_registry_domain = _get_value_from_env("DEFAULT_REGISTRY_DOMAIN")
-        self.registry_secrets = _get_credentials_from_string(_get_value_from_env("REGISTRY_SECRET_STRING", default=""))
+        self.registry_secrets = _get_credentials_from_string(_get_value_from_env("REGISTRY_SECRET_STRING", secret=True, default=""))
         self.report_only = bool(_get_value_from_env("REPORT_ONLY", default="false").lower())
 
 
