@@ -3,10 +3,6 @@ name: "Run Python Unit Tests"
 
 on:
   workflow_call:
-    inputs:
-      python_version:
-        type: string
-        required: true
 
 jobs:
   integration-test:
@@ -16,10 +12,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Get Python Version
+        id: get_python_verion
+        run: |
+          $python_version = $(cat python_version.txt)
+          echo "Using Python version $python_version"
+          echo "::set-output name=python_version::$(echo $python_version)"
+
       - name: Install Python
         uses: actions/setup-python@v2
         with:
-            python-version: ${{ inputs.python_version }}
+            python-version: ${{ steps.get_python_verion.outputs.python_version }}
 
       - name: Install Dependencies
         run: |
