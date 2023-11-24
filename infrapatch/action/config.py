@@ -33,7 +33,7 @@ def _get_value_from_env(key: str, secret: bool = False, default: Any = None) -> 
     if key in os.environ:
         log_value = os.environ[key]
         if secret:
-            log_value = "********"
+            log_value = f"{log_value[:3]}***"
         log.debug(f"Found the following value for {key}: {log_value}")
         return os.environ[key]
     if default is not None:
