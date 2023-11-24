@@ -22,13 +22,17 @@ jobs:
             pip install -r requirements.txt
             pip install -r requirements-dev.txt
 
+      - name: Set timezone
+        uses: szenius/set-timezone@v1.2
+        with:
+          timezoneLinux: 'Europe/Berlin'
+
       - name: Run pytest
         uses: pavelzw/pytest-action@v2
         with:
             verbose: true
             emoji: true
             job-summary: true
-            custom-arguments: '-q'
             click-to-expand: true
             report-title: 'InfraPatch Unit-Tests Report'
 
