@@ -2,6 +2,10 @@ name: CLI Integration test
 
 on:
   workflow_call:
+    inputs:
+      python_version:
+        type: string
+        required: true
 
 jobs:
   cli_integration_test:
@@ -26,7 +30,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: ${{ inputs.python_version }}
 
       - name: Install InfraPatch CLI
         run: |

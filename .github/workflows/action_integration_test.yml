@@ -2,6 +2,10 @@ name: "GitHub Action integration test"
 
 on:
   workflow_call:
+    inputs:
+      python_version:
+        type: string
+        required: true
 
 jobs:
   integration-test:

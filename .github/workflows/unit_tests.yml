@@ -1,7 +1,12 @@
 name: "Run Python Unit Tests"
 
+
 on:
   workflow_call:
+    inputs:
+      python_version:
+        type: string
+        required: true
 
 jobs:
   integration-test:
@@ -14,7 +19,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v2
         with:
-            python-version: ${{ env.PYTHON_VERSION }}
+            python-version: ${{ inputs.python_version }}
 
       - name: Install Dependencies
         run: |

@@ -2,6 +2,10 @@ name: "Check Format and Lint Code"
 
 on:
   workflow_call:
+    inputs:
+      python_version:
+        type: string
+        required: true
 
 jobs:
   check_code:
@@ -14,7 +18,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v2
         with:
-            python-version: ${{ env.PYTHON_VERSION }}
+            python-version: ${{ inputs.python_version }}
 
       - name: Install Dependencies
         run: |
