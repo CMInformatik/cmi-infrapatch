@@ -21,16 +21,24 @@ env:
 jobs:
   check_code:
     uses: ./.github/workflows/check_format_and_lint.yml
+    with:
+      python_version: ${{ env.PYTHON_VERSION }}
 
   unit_tests:
     needs: check_code
     uses: ./.github/workflows/unit_tests.yml
+    with:
+      python_version: ${{ env.PYTHON_VERSION }}
 
   cli_integration_test:
     needs:  unit_tests
     uses: ./.github/workflows/cli_integration_test.yml
+    with:
+      python_version: ${{ env.PYTHON_VERSION }}
 
   github_action_integration_test:
     needs:  unit_tests
     uses: ./.github/workflows/action_integration_test.yml
+    with:
+      python_version: ${{ env.PYTHON_VERSION }}
 
