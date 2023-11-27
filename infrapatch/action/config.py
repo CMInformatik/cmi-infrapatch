@@ -26,7 +26,7 @@ class ActionConfigProvider:
         self.working_directory = Path(_get_value_from_env("WORKING_DIRECTORY", default=os.getcwd()))
         self.default_registry_domain = _get_value_from_env("DEFAULT_REGISTRY_DOMAIN")
         self.registry_secrets = _get_credentials_from_string(_get_value_from_env("REGISTRY_SECRET_STRING", secret=True, default=""))
-        self.report_only = bool(_get_value_from_env("REPORT_ONLY", default="false").lower())
+        self.report_only = _from_env_to_bool(_get_value_from_env("REPORT_ONLY", default="False").lower())
 
 
 def _get_value_from_env(key: str, secret: bool = False, default: Any = None) -> Any:
@@ -55,3 +55,7 @@ def _get_credentials_from_string(credentials_string: str) -> dict[str, str]:
         # add the name and token to the credentials dict
         credentials[name] = token
     return credentials
+
+
+def _from_env_to_bool(value: str) -> bool:
+    return value.lower() in ["true", "1", "yes", "y", "t"]

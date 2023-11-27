@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from infrapatch.action.config import ActionConfigProvider, MissingConfigException, _get_credentials_from_string, _get_value_from_env
+from infrapatch.action.config import ActionConfigProvider, MissingConfigException, _from_env_to_bool, _get_credentials_from_string, _get_value_from_env
 
 
 def test_get_credentials_from_string():
@@ -53,7 +53,7 @@ def test_action_config_init():
     os.environ["WORKING_DIRECTORY"] = "/path/to/working/directory"
     os.environ["DEFAULT_REGISTRY_DOMAIN"] = "registry.example.com"
     os.environ["REGISTRY_SECRET_STRING"] = "test_registry.ch=abc123"
-    os.environ["REPORT_ONLY"] = "true"
+    os.environ["REPORT_ONLY"] = "False"
 
     config = ActionConfigProvider()
 
@@ -64,7 +64,7 @@ def test_action_config_init():
     assert config.working_directory == Path("/path/to/working/directory")
     assert config.default_registry_domain == "registry.example.com"
     assert config.registry_secrets == {"test_registry.ch": "abc123"}
-    assert config.report_only is True
+    assert config.report_only is False
 
     # Test case 2: Missing values in os.environ
     os.environ.clear()
@@ -72,3 +72,26 @@ def test_action_config_init():
         config = ActionConfigProvider()
     except MissingConfigException as e:
         assert str(e).__contains__("Missing configuration for key")
+
+
+def test_env_to_bool():
+    # Test case 1: True values
+    assert _from_env_to_bool("true") is True
+    assert _from_env_to_bool("1") is True
+    assert _from_env_to_bool("yes") is True
+    assert _from_env_to_bool("y") is True
+    assert _from_env_to_bool("t") is True
+
+    # Test case 2: False values
+    assert _from_env_to_bool("false") is False
+    assert _from_env_to_bool("0") is False
+    assert _from_env_to_bool("no") is False
+    assert _from_env_to_bool("n") is False
+    assert _from_env_to_bool("f") is False
+
+    # Test case 3: Case-insensitive
+    assert _from_env_to_bool("True") is True
+    assert _from_env_to_bool("FALSE") is False
+    assert _from_env_to_bool("YeS") is True
+    assert _from_env_to_bool("N") is False
+    assert _from_env_to_bool("T") is True
