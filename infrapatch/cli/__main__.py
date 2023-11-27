@@ -62,10 +62,10 @@ def update(project_root_path: str, confirm: bool, dump_json_statistics: bool):
     global main_handler
     if main_handler is None:
         raise Exception("main_handler not initialized.")
-    resources = main_handler.get_all_terraform_resources(project_root)
-    main_handler.update_resources(resources, confirm, Path(project_root))
-    main_handler.dump_statistics(resources, dump_json_statistics)
 
+    resources = main_handler.get_all_terraform_resources(project_root)
+    main_handler.update_resources(resources, confirm, project_root, project_root)
+    main_handler.dump_statistics(resources, dump_json_statistics)
 
 
 if __name__ == "__main__":

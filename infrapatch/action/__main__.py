@@ -20,7 +20,7 @@ def main(debug: bool):
 
     config = ActionConfigProvider()
 
-    git = Git(config.working_directory)
+    git = Git(config.repository_root)
     github = Github(auth=Auth.Token(config.github_token))
     github_repo = github.get_repo(config.repository_name)
     github_head_branch = github_repo.get_branch(config.head_branch)
@@ -60,7 +60,7 @@ def main(debug: bool):
         github_repo.create_git_ref(ref=f"refs/heads/{config.target_branch}", sha=github_head_branch.commit.sha)
         git.checkout_branch(config.target_branch, f"origin/{config.head_branch}")
 
-    main_handler.update_resources(upgradable_resources, True, config.working_directory, True)
+    main_handler.update_resources(upgradable_resources, True, config.working_directory, config.repository_root, True)
     main_handler.dump_statistics(upgradable_resources, save_as_json_file=True)
 
     git.push(["-f", "-u", "origin", config.target_branch])
