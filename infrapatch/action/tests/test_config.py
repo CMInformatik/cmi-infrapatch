@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+import pytest
+
 from infrapatch.action.config import ActionConfigProvider, MissingConfigException, _from_env_to_bool, _get_credentials_from_string, _get_value_from_env
 
 
@@ -44,13 +46,14 @@ def test_get_value_from_env():
     assert _get_value_from_env("TEST_VALUE", default="abc123") == "abc123"
 
 
-def test_action_config_init():
+@pytest.mark.parametrize("working_directory_relative_path", ["/working/directory", ""], ids=lambda d: f"x={d}")
+def test_action_config_init(working_directory_relative_path):
     # Test case 1: All values exist in os.environ
     os.environ["GITHUB_TOKEN"] = "abc123"
     os.environ["HEAD_BRANCH"] = "main"
     os.environ["TARGET_BRANCH"] = "develop"
     os.environ["REPOSITORY_NAME"] = "my-repo"
-    os.environ["WORKING_DIRECTORY"] = "/path/to/working/directory"
+    os.environ["WORKING_DIRECTORY_RELATIVE"] = working_directory_relative_path
     os.environ["DEFAULT_REGISTRY_DOMAIN"] = "registry.example.com"
     os.environ["REGISTRY_SECRET_STRING"] = "test_registry.ch=abc123"
     os.environ["REPORT_ONLY"] = "False"
@@ -61,7 +64,8 @@ def test_action_config_init():
     assert config.head_branch == "main"
     assert config.target_branch == "develop"
     assert config.repository_name == "my-repo"
-    assert config.working_directory == Path("/path/to/working/directory")
+    assert config.working_directory == Path(os.getcwd()).joinpath(working_directory_relative_path)
+    assert config.repository_root == Path(os.getcwd())
     assert config.default_registry_domain == "registry.example.com"
     assert config.registry_secrets == {"test_registry.ch": "abc123"}
     assert config.report_only is False

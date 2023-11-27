@@ -13,8 +13,9 @@ class ActionConfigProvider:
     head_branch: str
     target_branch: str
     repository_name: str
-    working_directory: Path
     default_registry_domain: str
+    working_directory: Path
+    repository_root: Path
     report_only: bool
     registry_secrets: dict[str, str]
 
@@ -23,7 +24,8 @@ class ActionConfigProvider:
         self.head_branch = _get_value_from_env("HEAD_BRANCH")
         self.target_branch = _get_value_from_env("TARGET_BRANCH")
         self.repository_name = _get_value_from_env("REPOSITORY_NAME")
-        self.working_directory = Path(_get_value_from_env("WORKING_DIRECTORY", default=os.getcwd()))
+        self.repository_root = Path(os.getcwd())
+        self.working_directory = self.repository_root.joinpath(_get_value_from_env("WORKING_DIRECTORY_RELATIVE", default=""))
         self.default_registry_domain = _get_value_from_env("DEFAULT_REGISTRY_DOMAIN")
         self.registry_secrets = _get_credentials_from_string(_get_value_from_env("REGISTRY_SECRET_STRING", secret=True, default=""))
         self.report_only = _from_env_to_bool(_get_value_from_env("REPORT_ONLY", default="False").lower())
