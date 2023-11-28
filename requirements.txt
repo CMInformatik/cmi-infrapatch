@@ -6,4 +6,4 @@ setuptools~=65.5.1
 pygit2~=1.13.1
 semantic-version~=2.10.0
 PyGithub~=2.1.1
-pytablewriter~=4.2.1.6
+pytablewriter~=1.2.0
