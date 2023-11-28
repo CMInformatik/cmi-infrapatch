@@ -118,7 +118,7 @@ class ProviderHandler:
         table = self._get_statistics(disable_cache).get_rich_table()
         self.console.print(table)
 
-    def get_markdown_tables(self, disable_cache: bool = False) -> dict[str, markdown_table]:
+    def get_markdown_tables(self) -> dict[str, markdown_table]:
         if self._resource_cache is None:
             raise Exception("No resources found. Run get_resources() first.")
 

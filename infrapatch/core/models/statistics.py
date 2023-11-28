@@ -44,10 +44,10 @@ class Statistics(BaseStatistics):
 
     def get_markdown_table(self) -> markdown_table:
         dict_element = {
-            "Errors": str(self.errors),
-            "Patched": str(self.resources_patched),
-            "Pending Update": str(self.resources_pending_update),
-            "Total": str(self.total_resources),
-            "Enabled Providers": str(len(self.providers)),
+            "Errors": self.errors,
+            "Patched": self.resources_patched,
+            "Pending Update": self.resources_pending_update,
+            "Total": self.total_resources,
+            "Enabled Providers": len(self.providers),
         }
         return markdown_table(dict_element)
