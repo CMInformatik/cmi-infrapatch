@@ -82,11 +82,11 @@ def get_pr_body(provider_handler: ProviderHandler) -> str:
     body = ""
     markdown_tables = provider_handler.get_markdown_tables()
     for provider_name, table in markdown_tables.items():
-        body += f"## {provider_name}\n\n"
+        body += f"## {provider_name}\n"
         body += table.get_markdown()
-        body += "\n\n"
+        body += "\n"
 
-    body += "## Statistics\n\n"
+    body += "## Statistics\n"
     body += provider_handler._get_statistics().get_markdown_table().get_markdown()
     return body
 
