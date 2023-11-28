@@ -7,7 +7,7 @@ setup(
     version=__version__,
     packages=find_packages(where=".", include=["infrapatch*"], exclude=["action*"]),
     package_data={"infrapatch": ["core/bin/*"]},
-    install_requires=["click~=8.1.7", "rich~=13.6.0", "pygohcl~=1.0.7", "GitPython~=3.1.40", "setuptools~=65.5.1", "semantic_version~=2.10.0"],
+    install_requires=["click~=8.1.7", "rich~=13.6.0", "pygohcl~=1.0.7", "GitPython~=3.1.40", "setuptools~=65.5.1", "semantic_version~=2.10.0", "py-markdown-table~=0.4.0"],
     python_requires=">=3.11",
     entry_points="""
         [console_scripts]
