@@ -2,11 +2,14 @@ from pathlib import Path
 from typing import Union
 
 import click
+from infrapatch.core.credentials_helper import get_registry_credentials
 from infrapatch.core.provider_handler import ProviderHandler
 from infrapatch.core.provider_handler_builder import ProviderHandlerBuilder
 
 from infrapatch.cli.__init__ import __version__
 from infrapatch.core.log_helper import catch_exception, setup_logging
+from infrapatch.core.utils.terraform.hcl_edit_cli import HclEditCli
+from infrapatch.core.utils.terraform.hcl_handler import HclHandler
 
 provider_handler: Union[ProviderHandler, None] = None
 
@@ -37,9 +40,9 @@ def main(debug: bool, version: bool, working_directory_path: str, credentials_fi
         credentials_file = Path(credentials_file_path)
         if not credentials_file.exists() or not credentials_file.is_file():
             raise Exception(f"Credentials file '{credentials_file}' does not exist.")
-
+    credentials = get_registry_credentials(HclHandler(HclEditCli()), credentials_file)
     provider_builder = ProviderHandlerBuilder(working_directory)
-    provider_builder.add_terraform_registry_configuration(default_registry_domain, credentials_file)
+    provider_builder.add_terraform_registry_configuration(default_registry_domain, credentials)
     provider_builder.with_terraform_module_provider()
     provider_builder.with_terraform_provider_provider()
     provider_handler = provider_builder.build()

@@ -25,9 +25,8 @@ class ProviderHandlerBuilder:
         self.git_integration = False
         pass
 
-    def add_terraform_registry_configuration(self, default_registry_domain: str, credentials_file: Path) -> Self:
+    def add_terraform_registry_configuration(self, default_registry_domain: str, credentials: dict[str, str]) -> Self:
         log.debug(f"Using {default_registry_domain} as default registry domain for Terraform.")
-        credentials = get_registry_credentials(HclHandler(HclEditCli()), credentials_file)
         log.debug(f"Found {len(credentials)} credentials for Terraform registries.")
         self.registry_handler = RegistryHandler(default_registry_domain, credentials)
         return self
