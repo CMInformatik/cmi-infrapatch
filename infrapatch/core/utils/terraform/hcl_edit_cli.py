@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Optional, Protocol, Union
 
 
-class HclEditCliException(BaseException):
+class HclEditCliException(Exception):
     pass
 
 

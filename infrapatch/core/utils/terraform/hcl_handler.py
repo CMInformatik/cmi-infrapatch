@@ -10,7 +10,7 @@ from infrapatch.core.models.versioned_terraform_resources import TerraformModule
 from infrapatch.core.utils.terraform.hcl_edit_cli import HclEditCli
 
 
-class HclParserException(BaseException):
+class HclParserException(Exception):
     pass
 
 

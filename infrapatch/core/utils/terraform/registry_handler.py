@@ -8,15 +8,15 @@ from urllib.parse import urlparse
 from infrapatch.core.models.versioned_terraform_resources import VersionedTerraformResource, TerraformModule, TerraformProvider
 
 
-class RegistryNotFoundException(BaseException):
+class RegistryNotFoundException(Exception):
     pass
 
 
-class RegistryMetadataException(BaseException):
+class RegistryMetadataException(Exception):
     pass
 
 
-class ResourceNotFoundException(BaseException):
+class ResourceNotFoundException(Exception):
     pass
 
 
