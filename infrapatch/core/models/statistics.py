@@ -46,8 +46,8 @@ class Statistics(BaseStatistics):
         dict_element = {
             "Errors": self.errors,
             "Patched": self.resources_patched,
-            "Pending Update": self.resources_pending_update,
+            "Pending_Update": self.resources_pending_update,
             "Total": self.total_resources,
-            "Enabled Providers": len(self.providers),
+            "Enabled_Providers": len(self.providers),
         }
-        return markdown_table(dict_element)
+        return markdown_table([dict_element])
