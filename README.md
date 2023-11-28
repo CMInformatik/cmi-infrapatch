@@ -102,6 +102,23 @@ jobs:
 
 ```
 
+#### Providers
+
+InfraPatch supports individual providers to detect and patch versions. Currently, the following providers are available:
+| Name                | Description                            |
+| ------------------- | -------------------------------------- |
+| terraform_modules   | Provider to patch Terraform Modules.   |
+| terraform_providers | Provider to patch Terraform Providers. |
+
+Per default, all providers are enabled. You can only enable specific providers by specifying the provider names as comma separated list in the input `enabled_providers`:
+  
+  ```yaml
+    - name: Run in update mode
+      uses: Noahnc/infrapatch@main
+      with:
+        enabled_providers: terraform_modules,terraform_providers
+  ```
+
 #### Report only Mode
 
 By default, the Action will create a Branch with all the changes and opens a PR to Branch for which the Action was triggered.
