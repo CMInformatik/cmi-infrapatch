@@ -20,6 +20,8 @@ class HclEditCliInterface(Protocol):
 class HclEditCli(HclEditCliInterface):
     def __init__(self):
         self._binary_path = self._get_binary_path()
+        if not self._binary_path.exists() and not self._binary_path.is_file():
+            raise Exception(f"Binary '{self._binary_path.absolute().as_posix()}' does not exist.")
 
     def _get_binary_path(self) -> Path:
         current_folder = Path(__file__).parent
