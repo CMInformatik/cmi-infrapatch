@@ -51,7 +51,12 @@ class ProviderHandler:
         upgradable_resources = self.get_upgradable_resources()
         for provider_name, resources in upgradable_resources.items():
             for resource in resources:
-                resource = self.providers[provider_name].patch_resource(resource)
+                try:
+                    resource = self.providers[provider_name].patch_resource(resource)
+                except Exception as e:
+                    log.error(f"Error patching resource '{resource.name}': {e}")
+                    resource.set_patch_error()
+                    continue
                 resource.set_patched()
                 if self.repo is not None:
                     log.debug(f"Commiting file: {resource.source_file.absolute().as_posix()} .")
