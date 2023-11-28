@@ -53,7 +53,7 @@ def main(debug: bool):
         log.info(f"Rebasing branch {config.target_branch} onto origin/{config.head_branch}")
         git.run_git_command(["rebase", "-Xtheirs", f"origin/{config.head_branch}"])
         git.push(["-f", "-u", "origin", config.target_branch])
-        
+
     provider_handler.print_resource_table(only_upgradable=True)
 
     if config.report_only:
