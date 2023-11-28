@@ -2,9 +2,9 @@ from pathlib import Path
 from typing import Any, Sequence
 
 from abc import abstractmethod
+from pytablewriter import MarkdownTableWriter
 
 from rich import progress
-from py_markdown_table.markdown_table import markdown_table
 from rich.table import Table
 from infrapatch.core.models.versioned_resource import VersionedResource
 from infrapatch.core.models.versioned_terraform_resources import VersionedTerraformResource
@@ -69,7 +69,7 @@ class TerraformProvider(BaseProviderInterface):
             table.add_row(resource.name, resource.source, resource.current_version, resource.newest_version, str(not resource.installed_version_equal_or_newer_than_new_version()))
         return table
 
-    def get_markdown_table(self, resources: Sequence[VersionedTerraformResource]) -> markdown_table:
+    def get_markdown_table(self, resources: Sequence[VersionedTerraformResource]) -> MarkdownTableWriter:
         dict_list = []
         for resource in resources:
             dict_element = {
@@ -80,7 +80,11 @@ class TerraformProvider(BaseProviderInterface):
                 "Upgradeable": str(not resource.installed_version_equal_or_newer_than_new_version()),
             }
             dict_list.append(dict_element)
-        return markdown_table(dict_list)
+        return MarkdownTableWriter(
+            title=self.get_provider_display_name(),
+            headers=list(dict_list[0].keys()),
+            value_matrix=[list(dict_element.values()) for dict_element in dict_list],
+        )
 
     def get_resources_as_dict_list(self, resources: Sequence[VersionedTerraformResource]) -> list[dict[str, Any]]:
         return [resource.to_dict() for resource in resources]

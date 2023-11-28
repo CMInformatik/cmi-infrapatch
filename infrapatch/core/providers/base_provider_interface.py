@@ -1,7 +1,7 @@
 from typing import Protocol, Sequence
+from pytablewriter import MarkdownTableWriter
 from rich.table import Table
 from infrapatch.core.models.versioned_resource import VersionedResource
-from py_markdown_table.markdown_table import markdown_table
 
 
 class BaseProviderInterface(Protocol):
@@ -20,7 +20,7 @@ class BaseProviderInterface(Protocol):
     def get_rich_table(self, resources: Sequence[VersionedResource]) -> Table:
         ...
 
-    def get_markdown_table(self, resources: Sequence[VersionedResource]) -> markdown_table:
+    def get_markdown_table(self, resources: Sequence[VersionedResource]) -> MarkdownTableWriter:
         ...
 
     def get_resources_as_dict_list(self, resources: Sequence[VersionedResource]):

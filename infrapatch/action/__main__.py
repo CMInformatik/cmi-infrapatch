@@ -81,17 +81,12 @@ def main(debug: bool):
 def get_pr_body(provider_handler: ProviderHandler) -> str:
     body = ""
     markdown_tables = provider_handler.get_markdown_tables()
-    for provider_name, table in markdown_tables.items():
-        table.setParams(padding_width=3, quote=False)
-        body += f"## {provider_name}\n"
-        body += "```\n"
-        body += table.get_markdown()
-        body += "\n```\n"
+    for table in markdown_tables:
+        body += table.dumps()
+        body += "\n"
 
-    body += "## Statistics\n"
-    body += "```\n"
-    body += provider_handler._get_statistics().get_markdown_table().setParams(padding_width=3, quote=False).get_markdown()
-    body += "\n```\n"
+    body += provider_handler._get_statistics().get_markdown_table().dumps()
+    body += "\n"
     return body
 
 

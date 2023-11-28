@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 import dataclasses
 from typing import Any, Sequence
+from pytablewriter import MarkdownTableWriter
 from rich.table import Table
 from infrapatch.core.models.versioned_resource import VersionedResource
-from py_markdown_table.markdown_table import markdown_table
 
 
 @dataclass
@@ -42,12 +42,16 @@ class Statistics(BaseStatistics):
         )
         return table
 
-    def get_markdown_table(self) -> markdown_table:
+    def get_markdown_table(self) -> MarkdownTableWriter:
         dict_element = {
             "Errors": self.errors,
             "Patched": self.resources_patched,
-            "Pending_Update": self.resources_pending_update,
+            "Pending Update": self.resources_pending_update,
             "Total": self.total_resources,
-            "Enabled_Providers": len(self.providers),
+            "Enabled Providers": len(self.providers),
         }
-        return markdown_table([dict_element])
+        return MarkdownTableWriter(
+            table_name="Statistics",
+            headers=list(dict_element.keys()),
+            value_matrix=[list(dict_element.values())],
+        )
