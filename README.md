@@ -7,6 +7,10 @@ The CLI works by scanning your .tf files for versioned providers and modules and
 ## CLI
 The follwoing chapter describes the CLI usage.
 
+## Supported Platforms
+
+Currently, the CLI supports only MacOS and Linux.
+
 ### Installation
 
 Before installing the CLI, make sure you have Python 3.11 or higher installed.
