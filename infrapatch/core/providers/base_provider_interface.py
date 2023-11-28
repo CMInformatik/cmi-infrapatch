@@ -1,10 +1,14 @@
 from typing import Protocol, Sequence
 from rich.table import Table
 from infrapatch.core.models.versioned_resource import VersionedResource
+from py_markdown_table.markdown_table import markdown_table
 
 
 class BaseProviderInterface(Protocol):
     def get_provider_name(self) -> str:
+        ...
+
+    def get_provider_display_name(self) -> str:
         ...
 
     def get_resources(self) -> Sequence[VersionedResource]:
@@ -16,7 +20,7 @@ class BaseProviderInterface(Protocol):
     def get_rich_table(self, resources: Sequence[VersionedResource]) -> Table:
         ...
 
-    def get_markdonw_table(self, resources: Sequence[VersionedResource]):
+    def get_markdown_table(self, resources: Sequence[VersionedResource]) -> markdown_table:
         ...
 
     def get_resources_as_dict_list(self, resources: Sequence[VersionedResource]):

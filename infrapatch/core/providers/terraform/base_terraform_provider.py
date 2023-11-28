@@ -73,7 +73,7 @@ class TerraformProvider(BaseProviderInterface):
             table.add_row(resource.name, resource.source, resource.current_version, resource.newest_version, str(not resource.installed_version_equal_or_newer_than_new_version()))
         return table
 
-    def get_markdonw_table(self, resources: Sequence[VersionedTerraformResource]) -> markdown_table:
+    def get_markdown_table(self, resources: Sequence[VersionedTerraformResource]) -> markdown_table:
         dict_list = []
         for resource in resources:
             dict_element = {
