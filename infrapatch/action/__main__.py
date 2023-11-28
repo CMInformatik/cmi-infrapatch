@@ -47,12 +47,12 @@ def main(debug: bool):
     except GithubException:
         github_target_branch = None
 
-    resources_head_branch = None
+    upgradable_resources_head_branch = None
     pr = None
     if github_target_branch is not None and config.report_only is False:
         pr = get_pr(github_repo, config.head_branch, config.target_branch)
         if pr is not None:
-            resources_head_branch = provider_handler.get_resources()
+            upgradable_resources_head_branch = provider_handler.get_upgradable_resources()
         log.info(f"Branch {config.target_branch} already exists. Checking out...")
         git.checkout_branch(config.target_branch, f"origin/{config.target_branch}")
 
@@ -76,9 +76,9 @@ def main(debug: bool):
         git.checkout_branch(config.target_branch, f"origin/{config.head_branch}")
 
     provider_handler.upgrade_resources()
-    if resources_head_branch is not None:
+    if upgradable_resources_head_branch is not None:
         log.info("Updating status of resources from previous branch...")
-        provider_handler.set_resources_patched_based_on_existing_resources(resources_head_branch)
+        provider_handler.set_resources_patched_based_on_existing_resources(upgradable_resources_head_branch)
     provider_handler.print_statistics_table()
     provider_handler.dump_statistics()
 
