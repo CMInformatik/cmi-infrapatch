@@ -81,7 +81,7 @@ class TerraformProvider(BaseProviderInterface):
             }
             dict_list.append(dict_element)
         return MarkdownTableWriter(
-            title=self.get_provider_display_name(),
+            table_name=self.get_provider_display_name(),
             headers=list(dict_list[0].keys()),
             value_matrix=[list(dict_element.values()) for dict_element in dict_list],
         )
