@@ -9,7 +9,7 @@ from rich.table import Table
 from infrapatch.core.models.versioned_resource import VersionedResource
 from infrapatch.core.models.versioned_terraform_resources import VersionedTerraformResource
 from infrapatch.core.providers.base_provider_interface import BaseProviderInterface
-from infrapatch.core.utils.terraform.hcl_edit_cli import HclEditCliException, HclEditCliInterface
+from infrapatch.core.utils.terraform.hcl_edit_cli import HclEditCliInterface
 from infrapatch.core.utils.terraform.hcl_handler import HclHandlerInterface
 from infrapatch.core.utils.terraform.registry_handler import RegistryHandlerInterface
 import logging as log
@@ -55,11 +55,7 @@ class TerraformProvider(BaseProviderInterface):
         if resource.check_if_up_to_date() is True:
             log.debug(f"Resource '{resource.name}' is already up to date.")
             return resource
-        try:
-            self.hcl_handler.bump_resource_version(resource)
-        except HclEditCliException as e:
-            log.error(f"Could not update resource '{resource.name}': {e}")
-            resource.set_patch_error()
+        self.hcl_handler.bump_resource_version(resource)
         return resource
 
     def get_rich_table(self, resources: Sequence[VersionedTerraformResource]) -> Table:
