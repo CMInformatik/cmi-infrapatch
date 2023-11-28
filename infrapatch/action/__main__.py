@@ -1,8 +1,10 @@
 import logging as log
+from typing import Union
 
 import click
 from github import Auth, Github, GithubException
 from github.PullRequest import PullRequest
+from github.Repository import Repository
 
 from infrapatch.action.config import ActionConfigProvider
 from infrapatch.core.log_helper import catch_exception, setup_logging
@@ -45,7 +47,12 @@ def main(debug: bool):
     except GithubException:
         github_target_branch = None
 
+    resources_head_branch = None
+    pr = None
     if github_target_branch is not None and config.report_only is False:
+        pr = get_pr(github_repo, config.head_branch, config.target_branch)
+        if pr is not None:
+            resources_head_branch = provider_handler.get_resources()
         log.info(f"Branch {config.target_branch} already exists. Checking out...")
         git.checkout_branch(config.target_branch, f"origin/{config.target_branch}")
 
@@ -53,7 +60,7 @@ def main(debug: bool):
         git.run_git_command(["rebase", "-Xtheirs", f"origin/{config.head_branch}"])
         git.push(["-f", "-u", "origin", config.target_branch])
 
-    provider_handler.print_resource_table(only_upgradable=True)
+    provider_handler.print_resource_table(only_upgradable=True, disable_cache=True)
 
     if config.report_only:
         log.info("Report only mode is enabled. No changes will be applied.")
@@ -69,13 +76,20 @@ def main(debug: bool):
         git.checkout_branch(config.target_branch, f"origin/{config.head_branch}")
 
     provider_handler.upgrade_resources()
+    if resources_head_branch is not None:
+        log.info("Updating status of resources from previous branch...")
+        provider_handler.set_resources_patched_based_on_existing_resources(resources_head_branch)
     provider_handler.print_statistics_table()
     provider_handler.dump_statistics()
 
     git.push(["-f", "-u", "origin", config.target_branch])
 
     body = get_pr_body(provider_handler)
-    create_pr(config.github_token, config.head_branch, config.repository_name, config.target_branch, body)
+
+    if pr is not None:
+        pr.edit(body=body)
+        return
+    create_pr(github_repo, config.head_branch, config.target_branch, body)
 
 
 def get_pr_body(provider_handler: ProviderHandler) -> str:
@@ -90,15 +104,17 @@ def get_pr_body(provider_handler: ProviderHandler) -> str:
     return body
 
 
-def create_pr(github_token, head_branch, repository_name, target_branch, body) -> PullRequest:
-    token = Auth.Token(github_token)
-    github = Github(auth=token)
-    repo = github.get_repo(repository_name)
+def get_pr(repo: Repository, head_branch, target_branch) -> Union[PullRequest, None]:
     pull = repo.get_pulls(state="open", sort="created", base=head_branch, head=target_branch)
     if pull.totalCount != 0:
         log.info(f"Pull request found from '{target_branch}' to '{head_branch}'")
         return pull[0]
-    log.info(f"No pull request found from '{target_branch}' to '{head_branch}'. Creating a new one.")
+    log.debug(f"No pull request found from '{target_branch}' to '{head_branch}'.")
+    return None
+
+
+def create_pr(repo: Repository, head_branch: str, target_branch: str, body: str) -> PullRequest:
+    log.info(f"Creating new pull request from '{target_branch}' to '{head_branch}'.")
     return repo.create_pull(title="InfraPatch Module and Provider Update", body=body, base=head_branch, head=target_branch)
 
 

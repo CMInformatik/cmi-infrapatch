@@ -61,6 +61,9 @@ class VersionedResource:
     def set_patch_error(self):
         self._status = ResourceStatus.PATCH_ERROR
 
+    def find(self, resources):
+        return [resource for resource in resources if resource.name == self.name and resource._source_file == self._source_file]
+
     def installed_version_equal_or_newer_than_new_version(self):
         if self.newest_version is None:
             raise Exception(f"Newest version of resource '{self.name}' is not set.")

@@ -28,6 +28,10 @@ class VersionedTerraformResource(VersionedResource):
     def identifier(self) -> Union[str, None]:
         return self._identifier
 
+    def find(self, resources):
+        filtered_resources = super().find(resources)
+        return [resource for resource in filtered_resources if resource._source == self._source]
+
 
 @dataclass
 class TerraformModule(VersionedTerraformResource):
