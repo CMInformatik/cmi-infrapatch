@@ -3,6 +3,7 @@ import dataclasses
 from typing import Any, Sequence
 from rich.table import Table
 from infrapatch.core.models.versioned_resource import VersionedResource
+from py_markdown_table.markdown_table import markdown_table
 
 
 @dataclass
@@ -25,7 +26,7 @@ class ProviderStatistics(BaseStatistics):
 class Statistics(BaseStatistics):
     providers: dict[str, ProviderStatistics]
 
-    def get_rich_table(self):
+    def get_rich_table(self) -> Table:
         table = Table(show_header=True, title="Statistics", expand=True)
         table.add_column("Errors")
         table.add_column("Patched")
@@ -40,3 +41,13 @@ class Statistics(BaseStatistics):
             str(len(self.providers)),
         )
         return table
+
+    def get_markdown_table(self) -> markdown_table:
+        dict_element = {
+            "Errors": str(self.errors),
+            "Patched": str(self.resources_patched),
+            "Pending Update": str(self.resources_pending_update),
+            "Total": str(self.total_resources),
+            "Enabled Providers": str(len(self.providers)),
+        }
+        return markdown_table(dict_element)
