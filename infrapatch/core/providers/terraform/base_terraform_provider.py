@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Any, Sequence
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
 from rich import progress
 from py_markdown_table.markdown_table import markdown_table

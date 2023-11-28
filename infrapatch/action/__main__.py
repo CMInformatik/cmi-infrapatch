@@ -5,12 +5,9 @@ import click
 from github import Auth, Github, GithubException
 from github.PullRequest import PullRequest
 from infrapatch.action.config import ActionConfigProvider
-from infrapatch.core import provider_handler
 
-from infrapatch.core.provider_handler import ProviderHandler
 from infrapatch.core.provider_handler_builder import ProviderHandlerBuilder
 from infrapatch.core.log_helper import catch_exception, setup_logging
-from infrapatch.core.models.versioned_terraform_resources import get_upgradable_resources
 from infrapatch.core.utils.git import Git
 
 
@@ -26,7 +23,7 @@ def main(debug: bool):
     github = Github(auth=Auth.Token(config.github_token))
     github_repo = github.get_repo(config.repository_name)
     github_head_branch = github_repo.get_branch(config.head_branch)
-    
+
     if len(config.enabled_providers) == 0:
         raise Exception("No providers enabled. Please enable at least one provider.")
 
@@ -38,7 +35,7 @@ def main(debug: bool):
         builder.with_terraform_module_provider()
     if "terraform_providers" in config.enabled_providers:
         builder.with_terraform_provider_provider()
-        
+
     provider_handler = builder.build()
 
     git.fetch_origin()
@@ -69,7 +66,7 @@ def main(debug: bool):
         log.info(f"Branch {config.target_branch} does not exist. Creating and checking out...")
         github_repo.create_git_ref(ref=f"refs/heads/{config.target_branch}", sha=github_head_branch.commit.sha)
         git.checkout_branch(config.target_branch, f"origin/{config.head_branch}")
-        
+
     provider_handler.upgrade_resources()
     provider_handler.print_statistics_table()
     provider_handler.dump_statistics()

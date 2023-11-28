@@ -1,7 +1,7 @@
 import logging as log
 import re
 from dataclasses import dataclass
-from typing import Any, Optional, Sequence, Union
+from typing import Optional, Sequence, Union
 
 from infrapatch.core.models.versioned_resource import VersionedResource
 

@@ -40,4 +40,3 @@ class Statistics(BaseStatistics):
             str(len(self.providers)),
         )
         return table
-

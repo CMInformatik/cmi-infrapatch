@@ -1,10 +1,8 @@
 import logging as log
 from pathlib import Path
 from typing import Self
-from infrapatch.core.models.versioned_terraform_resources import TerraformProvider
 from infrapatch.core.providers.terraform.terraform_provider_provider import TerraformProviderProvider
 
-from infrapatch.core.credentials_helper import get_registry_credentials
 from infrapatch.core.providers.terraform.terraform_module_provider import TerraformModuleProvider
 from git import Repo
 from rich.console import Console
