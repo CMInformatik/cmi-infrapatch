@@ -5,8 +5,10 @@ import click
 from github import Auth, Github, GithubException
 from github.PullRequest import PullRequest
 from infrapatch.action.config import ActionConfigProvider
+from infrapatch.core import provider_handler
 
-from infrapatch.core.composition import build_main_handler
+from infrapatch.core.provider_handler import ProviderHandler
+from infrapatch.core.provider_handler_builder import ProviderHandlerBuilder
 from infrapatch.core.log_helper import catch_exception, setup_logging
 from infrapatch.core.models.versioned_terraform_resources import get_upgradable_resources
 from infrapatch.core.utils.git import Git
@@ -24,8 +26,20 @@ def main(debug: bool):
     github = Github(auth=Auth.Token(config.github_token))
     github_repo = github.get_repo(config.repository_name)
     github_head_branch = github_repo.get_branch(config.head_branch)
+    
+    if len(config.enabled_providers) == 0:
+        raise Exception("No providers enabled. Please enable at least one provider.")
 
-    main_handler = build_main_handler(default_registry_domain=config.default_registry_domain, credentials_dict=config.registry_secrets)
+    builder = ProviderHandlerBuilder(config.working_directory)
+    builder.with_git_integration()
+    if "terraform_modules" in config.enabled_providers or "terraform_providers" in config.enabled_providers:
+        builder.add_terraform_registry_configuration(config.default_registry_domain, config.registry_secrets)
+    if "terraform_modules" in config.enabled_providers:
+        builder.with_terraform_module_provider()
+    if "terraform_providers" in config.enabled_providers:
+        builder.with_terraform_provider_provider()
+        
+    provider_handler = builder.build()
 
     git.fetch_origin()
 
@@ -42,26 +56,23 @@ def main(debug: bool):
         git.run_git_command(["rebase", "-Xtheirs", f"origin/{config.head_branch}"])
         git.push(["-f", "-u", "origin", config.target_branch])
 
-    resources = main_handler.get_all_terraform_resources(config.working_directory)
-
     if config.report_only:
-        main_handler.print_resource_table(resources)
+        provider_handler.print_resource_table(only_upgradable=True)
         log.info("Report only mode is enabled. No changes will be applied.")
         return
 
-    upgradable_resources = get_upgradable_resources(resources)
-
-    if len(upgradable_resources) == 0:
-        log.info("No upgradable resources found.")
+    if provider_handler.check_if_upgrades_available() is False:
+        log.info("No resources with pending upgrade found.")
         return
 
     if github_target_branch is None:
         log.info(f"Branch {config.target_branch} does not exist. Creating and checking out...")
         github_repo.create_git_ref(ref=f"refs/heads/{config.target_branch}", sha=github_head_branch.commit.sha)
         git.checkout_branch(config.target_branch, f"origin/{config.head_branch}")
-
-    main_handler.update_resources(upgradable_resources, True, config.working_directory, config.repository_root, True)
-    main_handler.dump_statistics(upgradable_resources, save_as_json_file=True)
+        
+    provider_handler.upgrade_resources()
+    provider_handler.print_statistics_table()
+    provider_handler.dump_statistics()
 
     git.push(["-f", "-u", "origin", config.target_branch])
 
