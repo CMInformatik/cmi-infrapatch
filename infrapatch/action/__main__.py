@@ -5,6 +5,7 @@ import click
 from github import Auth, Github, GithubException
 from github.PullRequest import PullRequest
 from infrapatch.action.config import ActionConfigProvider
+from infrapatch.core.provider_handler import ProviderHandler
 
 from infrapatch.core.provider_handler_builder import ProviderHandlerBuilder
 from infrapatch.core.log_helper import catch_exception, setup_logging
@@ -73,10 +74,23 @@ def main(debug: bool):
 
     git.push(["-f", "-u", "origin", config.target_branch])
 
-    create_pr(config.github_token, config.head_branch, config.repository_name, config.target_branch)
+    body = get_pr_body(provider_handler)
+    create_pr(config.github_token, config.head_branch, config.repository_name, config.target_branch, body)
 
 
-def create_pr(github_token, head_branch, repository_name, target_branch) -> PullRequest:
+def get_pr_body(provider_handler: ProviderHandler) -> str:
+    body = ""
+    markdown_tables = provider_handler.get_markdown_tables()
+    for provider_name, table in markdown_tables.items():
+        body += f"## {provider_name}\n\n"
+        body += table.get_markdown()
+
+    body += "## Statistics\n\n"
+    body += provider_handler._get_statistics().get_markdown_table().get_markdown()
+    return body
+
+
+def create_pr(github_token, head_branch, repository_name, target_branch, body) -> PullRequest:
     token = Auth.Token(github_token)
     github = Github(auth=token)
     repo = github.get_repo(repository_name)
@@ -85,7 +99,7 @@ def create_pr(github_token, head_branch, repository_name, target_branch) -> Pull
         log.info(f"Pull request found from '{target_branch}' to '{head_branch}'")
         return pull[0]
     log.info(f"No pull request found from '{target_branch}' to '{head_branch}'. Creating a new one.")
-    return repo.create_pull(title="InfraPatch Module and Provider Update", body="InfraPatch Module and Provider Update", base=head_branch, head=target_branch)
+    return repo.create_pull(title="InfraPatch Module and Provider Update", body=body, base=head_branch, head=target_branch)
 
 
 if __name__ == "__main__":

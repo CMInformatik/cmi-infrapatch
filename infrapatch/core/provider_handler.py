@@ -2,7 +2,7 @@ import json
 import logging as log
 from pathlib import Path
 from typing import Sequence, Union
-
+from py_markdown_table.markdown_table import markdown_table
 from git import Repo
 from rich.console import Console
 
@@ -79,15 +79,6 @@ class ProviderHandler:
         for table in tables:
             self.console.print(table)
 
-    def get_upgradable_resources_markdown_tables(self, disable_cache: bool = False):
-        upgradable_resources = self.get_upgradable_resources()
-        tables = []
-        for provider_name, provider in self.providers.items():
-            resources = upgradable_resources[provider.get_provider_name()]
-            if len(resources) > 0:
-                tables.append(provider.get_markdonw_table(upgradable_resources[provider.get_provider_name()]))
-        return tables
-
     def _get_statistics(self, disable_cache: bool = False) -> Statistics:
         resources = self.get_resources(disable_cache)
         provider_statistics: dict[str, ProviderStatistics] = {}
@@ -121,3 +112,15 @@ class ProviderHandler:
     def print_statistics_table(self, disable_cache: bool = False):
         table = self._get_statistics(disable_cache).get_rich_table()
         self.console.print(table)
+
+    def get_markdown_tables(self, disable_cache: bool = False) -> dict[str, markdown_table]:
+        if self._resource_cache is None:
+            raise Exception("No resources found. Run get_resources() first.")
+
+        markdown_tables: dict[str, markdown_table] = {}
+        for provider_name, provider in self.providers.items():
+            changed_resources = [
+                resource for resource in self._resource_cache[provider_name] if resource.status == ResourceStatus.PATCHED or resource.status == ResourceStatus.PATCH_ERROR
+            ]
+            markdown_tables[provider.get_provider_display_name()] = provider.get_markdown_table(changed_resources)
+        return markdown_tables
