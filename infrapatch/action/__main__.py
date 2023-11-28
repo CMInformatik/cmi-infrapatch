@@ -1,14 +1,13 @@
 import logging as log
 
-
 import click
 from github import Auth, Github, GithubException
 from github.PullRequest import PullRequest
-from infrapatch.action.config import ActionConfigProvider
-from infrapatch.core.provider_handler import ProviderHandler
 
-from infrapatch.core.provider_handler_builder import ProviderHandlerBuilder
+from infrapatch.action.config import ActionConfigProvider
 from infrapatch.core.log_helper import catch_exception, setup_logging
+from infrapatch.core.provider_handler import ProviderHandler
+from infrapatch.core.provider_handler_builder import ProviderHandlerBuilder
 from infrapatch.core.utils.git import Git
 
 
@@ -85,6 +84,7 @@ def get_pr_body(provider_handler: ProviderHandler) -> str:
     for provider_name, table in markdown_tables.items():
         body += f"## {provider_name}\n\n"
         body += table.get_markdown()
+        body += "\n\n"
 
     body += "## Statistics\n\n"
     body += provider_handler._get_statistics().get_markdown_table().get_markdown()
