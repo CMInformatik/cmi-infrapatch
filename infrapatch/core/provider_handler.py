@@ -146,7 +146,7 @@ class ProviderHandler:
     def set_resources_patched_based_on_existing_resources(self, original_resources: dict[str, Sequence[VersionedResource]]) -> None:
         for provider_name, provider in self.providers.items():
             original_resources_provider = original_resources[provider_name]
-            for resource in self._resource_cache[provider_name]:
+            for i, resource in enumerate(self._resource_cache[provider_name]):
                 found_resources = resource.find(original_resources_provider)
                 if len(found_resources) == 0:
                     log.debug(f"Resource '{resource.name}' not found in original resources. Skipping update.")
@@ -156,4 +156,4 @@ class ProviderHandler:
                 log.debug(f"Updating resource '{resource.name}' from provider {provider_name} with original resource.")
                 found_resource = found_resources[0]
                 found_resource.set_patched()
-                resource = found_resource
+                    self._resource_cache[provider_name][i] = found_resource # type: ignore
