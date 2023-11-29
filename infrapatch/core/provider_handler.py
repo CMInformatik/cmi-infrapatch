@@ -2,9 +2,10 @@ import json
 import logging as log
 from pathlib import Path
 from typing import Sequence, Union
-from rich import progress
+
 from git import Repo
 from pytablewriter import MarkdownTableWriter
+from rich import progress
 from rich.console import Console
 
 from infrapatch.core.models.statistics import ProviderStatistics, Statistics
@@ -127,7 +128,7 @@ class ProviderHandler:
         table = self._get_statistics(disable_cache).get_rich_table()
         self.console.print(table)
 
-    def get_markdown_tables(self) -> list[MarkdownTableWriter]:
+    def get_markdown_table_for_changed_resources(self) -> list[MarkdownTableWriter]:
         if self._resource_cache is None:
             raise Exception("No resources found. Run get_resources() first.")
 
@@ -136,6 +137,9 @@ class ProviderHandler:
             changed_resources = [
                 resource for resource in self._resource_cache[provider_name] if resource.status == ResourceStatus.PATCHED or resource.status == ResourceStatus.PATCH_ERROR
             ]
+            if len(changed_resources) == 0:
+                log.debug(f"No changed resources found for provider {provider_name}. Skipping.")
+                continue
             markdown_tables.append(provider.get_markdown_table(changed_resources))
         return markdown_tables
 

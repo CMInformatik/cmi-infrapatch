@@ -95,7 +95,7 @@ def main(debug: bool):
 
 def get_pr_body(provider_handler: ProviderHandler) -> str:
     body = ""
-    markdown_tables = provider_handler.get_markdown_tables()
+    markdown_tables = provider_handler.get_markdown_table_for_changed_resources()
     for table in markdown_tables:
         body += table.dumps()
         body += "\n"
