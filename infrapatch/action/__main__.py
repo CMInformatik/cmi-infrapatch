@@ -68,6 +68,10 @@ def main(debug: bool):
 
     if provider_handler.check_if_upgrades_available() is False:
         log.info("No resources with pending upgrade found.")
+        if pr is not None and upgradable_resources_head_branch is not None:
+            log.info("Updating PR Body...")
+            provider_handler.set_resources_patched_based_on_existing_resources(upgradable_resources_head_branch)
+            update_pr_body(pr, provider_handler)
         return
 
     if github_target_branch is None:
@@ -85,14 +89,19 @@ def main(debug: bool):
 
     git.push(["-f", "-u", "origin", config.target_branch])
 
-    body = get_pr_body(provider_handler)
+    if pr is not None:
+        update_pr_body(pr, provider_handler)
+        return
+    create_pr(github_repo, config.head_branch, config.target_branch, provider_handler)
 
+
+def update_pr_body(pr, provider_handler):
     if pr is not None:
         log.info("Updating existing pull request with new body.")
+        body = get_pr_body(provider_handler)
         log.debug(f"Pull request body:\n{body}")
         pr.edit(body=body)
         return
-    create_pr(github_repo, config.head_branch, config.target_branch, body)
 
 
 def get_pr_body(provider_handler: ProviderHandler) -> str:
@@ -131,8 +140,10 @@ def get_pr(repo: Repository, base: str, head: str) -> Union[PullRequest, None]:
         raise Exception(f"Multiple pull requests found from '{head}' to '{base}'.")
 
 
-def create_pr(repo: Repository, head_branch: str, target_branch: str, body: str) -> PullRequest:
+def create_pr(repo: Repository, head_branch: str, target_branch: str, provider_handler: ProviderHandler) -> PullRequest:
+    body = get_pr_body(provider_handler)
     log.info(f"Creating new pull request from '{target_branch}' to '{head_branch}'.")
+    log.debug(f"Pull request body:\n{body}")
     return repo.create_pull(title="InfraPatch Module and Provider Update", body=body, base=head_branch, head=target_branch)
 
 
