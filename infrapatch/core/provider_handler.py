@@ -25,8 +25,16 @@ class ProviderHandler:
 
     def get_resources(self, disable_cache: bool = False) -> dict[str, Sequence[VersionedResource]]:
         for provider_name, provider in self.providers.items():
-            if not disable_cache and provider_name not in self._resource_cache:
+            if provider_name not in self._resource_cache:
+                log.debug(f"Fetching resources for provider {provider.get_provider_name()} since cache is empty.")
                 self._resource_cache[provider.get_provider_name()] = provider.get_resources()
+                continue
+            elif disable_cache:
+                log.debug(f"Fetching resources for provider {provider.get_provider_name()} since cache is disabled.")
+                self._resource_cache[provider.get_provider_name()] = provider.get_resources()
+                continue
+            else:
+                log.debug(f"Using cached resources for provider {provider.get_provider_name()}.")
         return self._resource_cache
 
     def get_upgradable_resources(self, disable_cache: bool = False) -> dict[str, Sequence[VersionedResource]]:
