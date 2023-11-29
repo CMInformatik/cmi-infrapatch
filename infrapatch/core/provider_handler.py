@@ -156,4 +156,4 @@ class ProviderHandler:
                 log.debug(f"Updating resource '{resource.name}' from provider {provider_name} with original resource.")
                 found_resource = found_resources[0]
                 found_resource.set_patched()
-                    self._resource_cache[provider_name][i] = found_resource # type: ignore
+                self._resource_cache[provider_name][i] = found_resource  # type: ignore
