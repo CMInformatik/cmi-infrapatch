@@ -87,6 +87,7 @@ def main(debug: bool):
     body = get_pr_body(provider_handler)
 
     if pr is not None:
+        log.info("Updating existing pull request with new body.")
         pr.edit(body=body)
         return
     create_pr(github_repo, config.head_branch, config.target_branch, body)
