@@ -143,14 +143,16 @@ class ProviderHandler:
             markdown_tables.append(provider.get_markdown_table(changed_resources))
         return markdown_tables
 
-    def set_resources_patched_based_on_existing_resources(self, resources: dict[str, Sequence[VersionedResource]]) -> None:
+    def set_resources_patched_based_on_existing_resources(self, original_resources: dict[str, Sequence[VersionedResource]]) -> None:
         for provider_name, provider in self.providers.items():
-            current_resources = resources[provider_name]
-            for resource in resources[provider_name]:
-                current_resource = resource.find(current_resources)
+            original_resources_provider = original_resources[provider_name]
+            current_resources_provider = self._resource_cache[provider_name]
+            for resource in original_resources_provider:
+                current_resource = resource.find(current_resources_provider)
                 if len(current_resource) == 0:
                     log.info(f"Resource '{resource.name}' not found in current resources. Skipping.")
                     continue
                 if len(current_resource) > 1:
                     raise Exception(f"Found multiple resources with the same name: {resource.name}")
+                log.debug(f"Setting resource '{resource.name}' from provider {provider_name} to patched.")
                 current_resource[0].set_patched()

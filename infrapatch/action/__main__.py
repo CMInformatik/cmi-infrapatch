@@ -79,6 +79,7 @@ def main(debug: bool):
     if upgradable_resources_head_branch is not None:
         log.info("Updating status of resources from previous branch...")
         provider_handler.set_resources_patched_based_on_existing_resources(upgradable_resources_head_branch)
+
     provider_handler.print_statistics_table()
     provider_handler.dump_statistics()
 
@@ -88,6 +89,7 @@ def main(debug: bool):
 
     if pr is not None:
         log.info("Updating existing pull request with new body.")
+        log.debug(f"Pull request body:\n{body}")
         pr.edit(body=body)
         return
     create_pr(github_repo, config.head_branch, config.target_branch, body)
