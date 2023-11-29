@@ -109,15 +109,18 @@ def get_pr_body(provider_handler: ProviderHandler) -> str:
 
 def get_pr(repo: Repository, base: str, head: str) -> Union[PullRequest, None]:
     base_ref = base
+    head_ref = head
     if base_ref.startswith("origin/"):
         base_ref = base_ref[len("origin/") :]
-    pulls = repo.get_pulls(state="open", sort="created", head=head, direction="desc")
+    if head_ref.startswith("origin/"):
+        head_ref = head_ref[len("origin/") :]
+    pulls = repo.get_pulls(state="open", sort="created", direction="desc")
 
     if pulls.totalCount == 0:
-        log.debug(f"No pull request found from '{head}' to '{base}'.")
+        log.debug("No pull request found")
         return None
 
-    pr = [pr for pr in pulls if pr.base.ref == base_ref]
+    pr = [pr for pr in pulls if pr.base.ref == base_ref and pr.head.ref == head_ref]
     if len(pr) == 0:
         log.debug(f"No pull request found from '{head}' to '{base}'.")
         return None
