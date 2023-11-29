@@ -155,4 +155,5 @@ class ProviderHandler:
                 if len(current_resource) > 1:
                     raise Exception(f"Found multiple resources with the same name: {resource.name}")
                 log.debug(f"Setting resource '{resource.name}' from provider {provider_name} to patched.")
-                current_resource[0].set_patched()
+                resource.set_patched()
+                current_resource[0] = resource
