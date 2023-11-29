@@ -50,7 +50,7 @@ def main(debug: bool):
     upgradable_resources_head_branch = None
     pr = None
     if github_target_branch is not None and config.report_only is False:
-        pr = get_pr(github_repo, config.head_branch, config.target_branch)
+        pr = get_pr(github_repo, head=config.target_branch, base=config.head_branch)
         if pr is not None:
             upgradable_resources_head_branch = provider_handler.get_upgradable_resources()
         log.info(f"Branch {config.target_branch} already exists. Checking out...")
@@ -107,13 +107,25 @@ def get_pr_body(provider_handler: ProviderHandler) -> str:
     return body
 
 
-def get_pr(repo: Repository, head_branch, target_branch) -> Union[PullRequest, None]:
-    pull = repo.get_pulls(state="open", sort="created", base=head_branch, head=target_branch)
-    if pull.totalCount != 0:
-        log.info(f"Pull request found from '{target_branch}' to '{head_branch}'")
-        return pull[0]
-    log.debug(f"No pull request found from '{target_branch}' to '{head_branch}'.")
-    return None
+def get_pr(repo: Repository, base: str, head: str) -> Union[PullRequest, None]:
+    base_ref = base
+    if base_ref.startswith("origin/"):
+        base_ref = base_ref[len("origin/") :]
+    pulls = repo.get_pulls(state="open", sort="created", head=head, direction="desc")
+
+    if pulls.totalCount == 0:
+        log.debug(f"No pull request found from '{head}' to '{base}'.")
+        return None
+
+    pr = [pr for pr in pulls if pr.base.ref == base_ref]
+    if len(pr) == 0:
+        log.debug(f"No pull request found from '{head}' to '{base}'.")
+        return None
+    elif len(pr) == 1:
+        log.debug(f"Pull request found from '{head}' to '{base}'.")
+        return pr[0]
+    if len(pr) > 1:
+        raise Exception(f"Multiple pull requests found from '{head}' to '{base}'.")
 
 
 def create_pr(repo: Repository, head_branch: str, target_branch: str, body: str) -> PullRequest:
