@@ -1,7 +1,7 @@
 
 module "test_module" {
   source  = "hashicorp/consul/aws"
-  version = "0.2.0"
+  version = "0.11.0"
 }
 
 # This resource should be ignored by infrapatch
