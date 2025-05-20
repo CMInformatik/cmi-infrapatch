@@ -12,7 +12,7 @@ setup(
         "rich~=13.6.0",
         "pygohcl~=1.0.7",
         "GitPython~=3.1.40",
-        "setuptools~=65.5.1",
+        "setuptools>=65.5.1,<80.8.0",
         "semantic_version~=2.10.0",
         "pytablewriter~=1.2.0",
         "PyGithub~=2.1.1",
