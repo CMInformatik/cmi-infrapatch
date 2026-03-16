@@ -79,6 +79,9 @@ class HclHandler(HclHandlerInterface):
                 providers = terraform_file_dict["terraform"]["required_providers"]
                 for provider_name, provider_config in providers.items():
                     source = provider_config["source"]
+                    if "version" not in provider_config:
+                        log.debug(f"Skipping provider '{provider_name}' because it has no version attribute.")
+                        continue
                     start_line_number = self._get_start_line_number(content, file=tf_file, search_regex=rf'{provider_name}\s*=\s*\{{[^}}]*source\s*=\s*"{source}"[^}}]*\}}')
                     found_resources.append(
                         TerraformProvider(
