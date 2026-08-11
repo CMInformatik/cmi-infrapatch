@@ -48,6 +48,20 @@ def test_tile_constraint():
     assert resource.newest_version == "~>1.1.0"
 
 
+def test_tile_constraint_with_space_and_partial_version():
+    # e.g. version = "~> 3.6" in a .tf file
+    resource = VersionedResource(name="test_resource", current_version="~> 3.6", source_file=Path("test_file.py"), start_line_number=1)
+    assert resource.current_version == "~>3.6"
+    assert resource.has_tile_constraint() is True
+
+    resource.newest_version = "3.7.1"
+    assert resource.installed_version_equal_or_newer_than_new_version() is False
+
+    resource = VersionedResource(name="test_resource", current_version="~> 3.6", source_file=Path("test_file.py"), start_line_number=1)
+    resource.newest_version = "3.6.2"
+    assert resource.installed_version_equal_or_newer_than_new_version() is True
+
+
 def test_git_repo():
     resource = VersionedResource(name="test_resource", current_version="~>1.0.0", source_file=Path("test_file.py"), start_line_number=1)
 
