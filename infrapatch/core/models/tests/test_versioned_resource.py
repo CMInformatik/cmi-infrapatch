@@ -62,6 +62,19 @@ def test_tile_constraint_with_space_and_partial_version():
     assert resource.installed_version_equal_or_newer_than_new_version() is True
 
 
+def test_tile_constraint_major_bump_with_lower_minor():
+    # e.g. "~>4.64.0" with newest 5.1.0: the new major has a lower minor
+    resource = VersionedResource(name="test_resource", current_version="~>4.64.0", source_file=Path("test_file.py"), start_line_number=1)
+    resource.newest_version = "5.1.0"
+    assert resource.installed_version_equal_or_newer_than_new_version() is False
+    assert resource.status == ResourceStatus.UNPATCHED
+
+    # newest is older than current -> nothing to do
+    resource = VersionedResource(name="test_resource", current_version="~>5.1.0", source_file=Path("test_file.py"), start_line_number=1)
+    resource.newest_version = "4.64.0"
+    assert resource.installed_version_equal_or_newer_than_new_version() is True
+
+
 def test_git_repo():
     resource = VersionedResource(name="test_resource", current_version="~>1.0.0", source_file=Path("test_file.py"), start_line_number=1)
 

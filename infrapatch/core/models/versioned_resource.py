@@ -123,11 +123,8 @@ class VersionedResource(BaseModel):
         # chech if the current version has the following format: "~>3.76.0" or "~>3.76"
         if self.has_tile_constraint():
             current = semantic_version.Version.coerce(self.current_version.strip("~>"))
-            if current.major > newest.major:  # type: ignore
-                return True
-            if current.minor >= newest.minor:  # type: ignore
-                return True
-            return False
+            # only the patch part floats, so an update is due as soon as major or minor moved
+            return (current.major, current.minor) >= (newest.major, newest.minor)
 
         current_constraint = semantic_version.NpmSpec(self.current_version)
         if newest in current_constraint:
