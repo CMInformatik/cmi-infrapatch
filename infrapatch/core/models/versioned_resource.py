@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 
 import semantic_version
 from git import Sequence
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 
 class ResourceStatus:
@@ -30,6 +30,12 @@ class VersionedResource(BaseModel):
     status: str = ResourceStatus.UNPATCHED
     github_repo_string: Optional[str] = None
     options: VersionedResourceOptions = VersionedResourceOptions()
+
+    @field_validator("current_version")
+    @classmethod
+    def strip_whitespace_from_version(cls, value: str) -> str:
+        # Terraform allows whitespace in constraints (e.g. "~> 3.6"), semantic_version does not
+        return re.sub(r"\s+", "", value)
 
     @property
     def resource_name(self):
@@ -87,7 +93,7 @@ class VersionedResource(BaseModel):
         self.status = ResourceStatus.UP_TO_DATE
 
     def has_tile_constraint(self) -> bool:
-        result = re.match(r"^~>[0-9]+\.[0-9]+\.[0-9]+$", self.current_version)
+        result = re.match(r"^~>[0-9]+(\.[0-9]+){1,2}$", self.current_version)
         if result is None:
             return False
         return True
@@ -114,14 +120,11 @@ class VersionedResource(BaseModel):
                 return True
             return False
 
-        # chech if the current version has the following format: "~>3.76.0"
+        # chech if the current version has the following format: "~>3.76.0" or "~>3.76"
         if self.has_tile_constraint():
-            current = semantic_version.Version(self.current_version.strip("~>"))
-            if current.major > newest.major:  # type: ignore
-                return True
-            if current.minor >= newest.minor:  # type: ignore
-                return True
-            return False
+            current = semantic_version.Version.coerce(self.current_version.strip("~>"))
+            # only the patch part floats, so an update is due as soon as major or minor moved
+            return (current.major, current.minor) >= (newest.major, newest.minor)
 
         current_constraint = semantic_version.NpmSpec(self.current_version)
         if newest in current_constraint:
