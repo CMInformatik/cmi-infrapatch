@@ -1,0 +1,45 @@
+name: Claude-Rules
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  claude_rules_validate:
+    name: claude_rules_validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Claude-Rules nicht lokal ändern
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -o pipefail
+
+          if ! changed_files=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR/files" --paginate --slurp | jq -r '.[].[]?.filename'); then
+            echo "Liste der geänderten Dateien konnte nicht gelesen werden - Prüfung nicht möglich"
+            exit 1
+          fi
+
+          rules=()
+          while IFS= read -r changed_file; do
+              [[ ${changed_file} =~ ^\.claude/rules/ ]] && rules+=("$changed_file")
+          done <<< "$changed_files"
+
+          if [[ ${#rules[@]} -eq 0 ]];then
+            echo "Keine Änderungen unter .claude/rules/"
+            exit 0
+          fi
+
+          printf 'Betroffen: %s\n' "${rules[@]}"
+          echo
+          echo "Claude-Rules werden zentral in cmi-github-infrastructure gepflegt und von dort verteilt."
+          echo "Änderungen gehören dorthin: modules/github-repo-general/rules/ (Anleitung im README)."
+          exit 1
