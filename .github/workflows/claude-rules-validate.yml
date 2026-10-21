@@ -31,4 +31,4 @@ jobs:
             exit 0
           fi
 
-          gh pr review "$PR" --repo "$GITHUB_REPOSITORY" --request-changes --body "Claude-Rules werden zentral in cmi-github-infrastructure gepflegt und von dort verteilt."
+          gh pr review "$PR" --repo "$GITHUB_REPOSITORY" --request-changes --body "Claude-Rules werden zentral in cmi-claude-infrastructure (rules/) gepflegt und von dort verteilt."
