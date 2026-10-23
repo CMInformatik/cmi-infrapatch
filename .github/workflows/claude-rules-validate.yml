@@ -1,15 +1,18 @@
 name: Claude-Rules
 
 on:
-  pull_request_target:
+  pull_request:
+    branches:
+      - main
     types:
       - opened
       - synchronize
       - reopened
-    paths:
-      - .claude/rules/**
+      - edited
 
-permissions: {}
+permissions:
+  contents: read
+  pull-requests: read
 
 jobs:
   claude_rules_validate:
@@ -18,17 +21,19 @@ jobs:
     steps:
       - name: Claude-Rules nicht lokal ändern
         env:
-          GH_TOKEN: ${{ secrets.CMI_GITHUBTOKEN_RW }}
+          GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
         run: |
-          set -o pipefail
+          set -euo pipefail
 
-          cmiapps_review_state=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json latestReviews \
-            -q '.latestReviews[] | select(.author.login == "cmiapps") | .state')
+          rule_files=$(gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files?per_page=100" \
+            -q '.[] | select((.filename | startswith(".claude/rules/")) or ((.previous_filename // "") | startswith(".claude/rules/"))) | if .previous_filename then "\(.previous_filename) -> \(.filename)" else .filename end')
 
-          if [[ ${cmiapps_review_state} == "CHANGES_REQUESTED" ]]; then
-            echo "Änderungen bereits angefordert"
+          if [[ -z ${rule_files} ]]; then
+            echo "PR ändert .claude/rules/ nicht"
             exit 0
           fi
 
-          gh pr review "$PR" --repo "$GITHUB_REPOSITORY" --request-changes --body "Claude-Rules werden zentral in cmi-claude-infrastructure (rules/) gepflegt und von dort verteilt."
+          echo "${rule_files}"
+          echo "::error::Claude-Rules werden zentral in cmi-claude-infrastructure (rules/) gepflegt und von dort verteilt. Änderungen an .claude/rules/ aus diesem PR entfernen."
+          exit 1
