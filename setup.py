@@ -11,7 +11,7 @@ setup(
         "click~=8.1.7",
         "rich~=13.6.0",
         "pygohcl~=1.0.7",
-        "GitPython~=3.1.40",
+        "GitPython~=3.2.1",
         "setuptools~=78.1.1",
         "semantic_version~=2.10.0",
         "pytablewriter~=1.2.0",
